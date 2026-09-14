@@ -1,1 +1,8 @@
-*.exe
+*
+!*/
+!*.cpp
+!.gitignore
+!*.bat
+!*.sh
+.vscode
+.stfolder

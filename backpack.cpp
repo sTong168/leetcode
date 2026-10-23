@@ -13,21 +13,51 @@ dp[i][j]: 前(i+1)个物品、容量为 j 时的最大价值
 #include <algorithm>
 using namespace std;
 
-int maxValue(int m, int n, vector<int>& w, vector<int>& v) {
-    // 行 = 物品个数 n，列 = 容量 0..m
-    vector<vector<int>> dp(n, vector<int>(m + 1, 0));
+int maxValue2(int m, int n, vector<int>& w, vector<int>& v) {
+    // 二维 dp, 行 = 物品个数 n，列 = 容量 0..m
+    vector<vector<int>> dp(n, vector<int>(m+1, 0));
     for (int i = 0; i < n; ++i) {
-        for (int j = 0; j <= m; ++j) {
-            if (j < w[i]) {
-                dp[i][j] = (i >= 1) ? dp[i-1][j] : 0;
+        for (int j = 1; j <= m; ++j) {
+            if (w[i] <= j) {
+                dp[i][j] = (i == 0) ? v[i] : max(dp[i-1][j], dp[i-1][j-w[i]]+v[i]);
             } else {
-                int take = (i >= 1) ? dp[i-1][j - w[i]] + v[i] : v[i];
-                int notTake = (i >= 1) ? dp[i-1][j] : 0;
-                dp[i][j] = max(take, notTake);
+                dp[i][j] = (i == 0) ? 0 : dp[i-1][j];
             }
         }
     }
+    // for (int i = 0; i < n; ++i) {
+    //     for (int j = 0; j <= m; ++j) {
+    //         cout << dp[i][j] << '\t';
+    //     }
+    //     cout << '\n';
+    // }
     return dp[n-1][m];
+}
+
+/*
+观察 dp[i][j]:
+0       3       3       3       3       3       3       3       3
+0       3       3       5       5       5       5       5       5
+0       3       4       5       6       6       6       6       6
+0       3       4       5       7       8       9       10      10
+0       3       4       5       7       8       9       10      10
+发现dp[i]的大部分数据都继承与dp[i-1] (具体来讲，在 j < w[i]时继承，大于时相当于可以放进新的物品，所以 dp[i] 要更新)
+因此可以把 dp[i][j] 改为 dp[j], 只有在 j >= w[i] 时更新 dp[j]
+至于遍历顺序，可观察原递推表达式: dp[i][j] = max(dp[i-1][j], dp[i-1][j-w[i]]+v[i]);
+dp[i][j] 要根据 dp[i-1][j-w[i]] 确定，而若将 j 从小到大遍历，则会导致 dp[i-1][j-w[i]] 被 dp[i][j-w[i]] 覆盖
+这样得到的结果不是 0-1 背包而是完全背包问题， 即同一个物品 i 可被拿多次
+因此 j 要从大到小遍历
+*/
+
+int maxValue1(int m, int n, vector<int>& w, vector<int>& v) {
+    // 一维动态数组, 行 = 容量 0..m
+    vector<int> dp(m+1, 0);
+    for (int i = 0; i < n; ++i) {
+        for (int j = m; j >= w[i]; --j) {
+            dp[j] = (i == 0) ? v[i] : max(dp[j], dp[j-w[i]]+v[i]);
+        }
+    }
+    return dp[m];
 }
 
 int main() {
@@ -35,6 +65,6 @@ int main() {
     int n = 5;
     vector<int> w = {1,2,1,3,4};
     vector<int> v = {3,2,1,4,2};
-    cout << maxValue(m, n, w, v) << endl;
+    cout << maxValue1(m, n, w, v) << endl;
     return 0;
 }

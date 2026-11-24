@@ -9,7 +9,7 @@
 #include <vector>
 #include <algorithm>
 #include <numeric>
-
+using namespace std;
 class Solution {
 public:
     int findMaxForm(vector<string>& strs, int m, int n) {

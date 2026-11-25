@@ -45,7 +45,7 @@ public:
         // =========Dijkstra=======
         vector<bool> unmap(n, 1);
         bool tn(1); // tn==0: map all
-        while (tn) {
+        for (int it = 0; it < n; ++it) {
             int u = -1;
             for (int i = 0; i < n; ++i) {
                 if (unmap[i]) {
@@ -60,18 +60,10 @@ public:
                 break;
 
             unmap[u] = 0;
-            int v(0); // random initial
             for (int i = 0; i < n; ++i) {
                 if (unmap[i] && g[u][i] != INT_MAX) {
                     dist2k[i] = min(dist2k[i], dist2k[u] + g[u][i]);
-                    if (g[u][v] > g[u][i]) {
-                        v = i; // min v
-                    }
                 }
-            }
-
-            for (bool t: unmap) {
-                tn = max(t, tn);
             }
         }
 

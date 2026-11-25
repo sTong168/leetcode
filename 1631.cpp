@@ -14,19 +14,19 @@ class Solution {
 public:
     int minimumEffortPath(vector<vector<int>>& heights) {
         int row(heights.size()), col(heights[0].size());
-        vector<vector<int>> g(row * col, vector<int>(row * col, INT_MAX));
-        for (int i = 0; i < row; ++i) {
-            for (int j = 0; j < col; ++j) {
-                if (i > 0)
-                    g[i*col+j][(i-1)*col+j] = abs(heights[i][j] - heights[i-1][j]);
-                if (i < row - 1)
-                    g[i*col+j][(i+1)*col+j] = abs(heights[i][j] - heights[i+1][j]);
-                if (j > 0)
-                    g[i*col+j][i*col+j-1] = abs(heights[i][j] - heights[i][j-1]);
-                if (j < col - 1)
-                    g[i*col+j][i*col+j+1] = abs(heights[i][j] - heights[i][j+1]);
-            }
-        }
+        // vector<vector<int>> g(row * col, vector<int>(row * col, INT_MAX));
+        // for (int i = 0; i < row; ++i) {
+        //     for (int j = 0; j < col; ++j) {
+        //         if (i > 0)
+        //             g[i*col+j][(i-1)*col+j] = abs(heights[i][j] - heights[i-1][j]);
+        //         if (i < row - 1)
+        //             g[i*col+j][(i+1)*col+j] = abs(heights[i][j] - heights[i+1][j]);
+        //         if (j > 0)
+        //             g[i*col+j][i*col+j-1] = abs(heights[i][j] - heights[i][j-1]);
+        //         if (j < col - 1)
+        //             g[i*col+j][i*col+j+1] = abs(heights[i][j] - heights[i][j+1]);
+        //     }
+        // }
         vector<int> dist(row*col, INT_MAX);
         vector<bool> visited(row*col, 0);
         dist[row*col-1] = 0;
@@ -40,9 +40,18 @@ public:
                 break;
             }
             visited[u] = 1;
-            for (int j = 0; j < row*col; ++j) {
-                if (!visited[j] && g[u][j] != INT_MAX) 
-                    dist[j] = min(dist[j], max(dist[u], g[u][j]));
+            vector<int> neighbors{};
+            if (u%col!=0&&u>=1)
+                neighbors.push_back(u-1);
+            if (u%col!=col-1&&u<row*col-1)
+                neighbors.push_back(u+1);
+            if (u/col!=0&&u>=col)
+                neighbors.push_back(u-col);
+            if (u/col!=col-1&&u<row*col-col)
+                neighbors.push_back(u+col);
+            for (auto j: neighbors) {
+                if (!visited[j])  
+                    dist[j] = min(dist[j], max(dist[u], abs(heights[u/col][u%col]-heights[j/col][j%col])));
             }
         }
         // DEBUG
@@ -58,7 +67,7 @@ public:
 // @lc code=end
 int main() {
     Solution s;
-    vector<vector<int>> heights = {{1,2,5,4,2},{4,5,2,2,3},{4,2,5,6,3},{3,3,4,2,3},{1,3,3,2,2}};
+    vector<vector<int>> heights = {{1,10,6,7,9,10,4,9}};
     cout << s.minimumEffortPath(heights) << endl;
     return 0;
 }
